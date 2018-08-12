@@ -48,12 +48,12 @@ doioctl:
 
 		if (ifindex > 0)
 			mreq6.ipv6mr_interface = ifindex;
-		else if (ifname != NULL)
+		else if (ifname != NULL) {
 			if ( (mreq6.ipv6mr_interface = if_nametoindex(ifname)) == 0) {
 				errno = ENXIO;	/* i/f name not found */
 				return(-1);
 			}
-		else
+		} else
 			mreq6.ipv6mr_interface = 0;
 
 		return(setsockopt(sockfd, IPPROTO_IPV6, IPV6_ADD_MEMBERSHIP,

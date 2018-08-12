@@ -93,7 +93,7 @@ Malloc(size_t size)
 void
 Mktemp(char *template)
 {
-	if (mktemp(template) == NULL || template[0] == 0)
+	if (mkstemp(template) < 0 || template[0] == 0)
 		err_quit("mktemp error");
 }
 

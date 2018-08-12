@@ -1,9 +1,8 @@
 #include	"unp.h"
 #include	<sys/param.h>
-#include	<sys/ucred.h>
 
 ssize_t
-read_cred(int fd, void *ptr, size_t nbytes, struct fcred *fcredptr)
+read_cred(int fd, void *ptr, size_t nbytes, struct ucred *ucredptr)
 {
 	struct msghdr	msg;
 	struct iovec	iov[1];
@@ -11,7 +10,7 @@ read_cred(int fd, void *ptr, size_t nbytes, struct fcred *fcredptr)
 
 	union {
 	  struct cmsghdr	cm;
-	  char				control[CMSG_SPACE(sizeof(struct fcred))];
+	  char				control[CMSG_SPACE(sizeof(struct ucred))];
 	} control_un;
 	struct cmsghdr	*cmptr;
 
@@ -30,19 +29,19 @@ read_cred(int fd, void *ptr, size_t nbytes, struct fcred *fcredptr)
 		return(n);
 
 /* *INDENT-OFF* */
-	if (fcredptr) {
+	if (ucredptr) {
 		if (msg.msg_controllen > sizeof(struct cmsghdr)) {
 			cmptr = CMSG_FIRSTHDR(&msg);
 
-			if (cmptr->cmsg_len != CMSG_LEN(sizeof(struct fcred)))
+			if (cmptr->cmsg_len != CMSG_LEN(sizeof(struct ucred)))
 				err_quit("control length = %d", cmptr->cmsg_len);
 			if (cmptr->cmsg_level != SOL_SOCKET)
 				err_quit("control level != SOL_SOCKET");
-			if (cmptr->cmsg_type != SCM_CREDS)
-				err_quit("control type != SCM_CREDS");
-			memcpy(fcredptr, CMSG_DATA(cmptr), sizeof(struct fcred));
+			if (cmptr->cmsg_type != SCM_CREDENTIALS)
+				err_quit("control type != SCM_CREDENTIALS");
+			memcpy(ucredptr, CMSG_DATA(cmptr), sizeof(struct ucred));
 		} else
-			bzero(fcredptr, sizeof(struct fcred)); /* none returned */
+			bzero(ucredptr, sizeof(struct ucred)); /* none returned */
 	}
 /* *INDENT-ON* */
 
